@@ -2,6 +2,8 @@ import Bio.Entrez
 import Bio.Medline
 import logging
 import typing
+import random
+import string
 from app.placemats.util import *
 from collections import defaultdict, namedtuple
 
@@ -23,9 +25,15 @@ AUTHOR_NAME = 'AU'
 def configure_client(email='dev.robot@gmail.com', api_key=None):
     """
     Must be called once before calling any of the other API's
+
+    HACK: when deployed, we wanna assign a unique email to each instance to avoid throttling
     :param email:
     :param api_key:
     """
+
+    if email == 'ncbi.robot.user@gmail.com':
+        email = 'ncbi.robot.{}-user@gmail.com'.format(''.join(random.choices(string.ascii_uppercase + string.digits, k=5)))
+        logger.info('Setting email to %s', email)
     Bio.Entrez.email = email
     global API_KEY
     API_KEY = api_key
