@@ -326,25 +326,35 @@ def get_mesh_category(term):
     mesh_ids = mesh_information['IdList']
     record = get_mesh_info(mesh_ids)
     mesh_category = extract_category(record)
-    if len(mesh_category) == 1:
-        mesh_category = " ".join(mesh_category)
-        mesh_category = mesh_category.replace(' ', '_')
-    else:
-        mesh_category = "/".join(mesh_category)
-        mesh_category = mesh_category.replace(' ', '_')
-    return(mesh_category)
+    return mesh_category
 
 
 
 def extract_category(mesh_text):
-    category = set()
-    lookup = 'All MeSH Categories'
+    lookup = 'Tree Number(s): '
+    Category_dict = {'A': 'Anatomy',
+                     'B': 'Organisms',
+                     'C': 'Diseases',
+                     'D': 'Chemicals+Drugs',
+                     'E': 'Analytical, Diagnostic + Therapeutic Techniques, and Equipment',
+                     'F': 'Psychiatry + Psychology',
+                     'G': 'Phenomena + Processes',
+                     'H': 'Disciplines + Occupation',
+                     'I': 'Antropology, Education, Sociology, and Social Phenomena',
+                     'J': 'Technology, Industry, and Agriculture',
+                     'K': 'Humanities',
+                     'L': 'Information Science',
+                     'M': 'Named Groups',
+                     'N': 'Health Care',
+                     'V': 'Publication Characteristic',
+                     'Z': 'Geographics'
+                     }
     # This is the character at which All MeSH Categories is found in each record retrieved from MeSH
-
-    while (lookup in mesh_text):
-        idx1 = mesh_text.index(lookup) + len(lookup) + 1
-        idx2 = mesh_text.index("\n", idx1) - len("Category")
-        category.add(mesh_text[idx1:idx2].strip())
-        mesh_text = mesh_text[idx2:]
+    idx1 = mesh_text.index(lookup) + len(lookup)
+    idx2 = mesh_text.index("\n", idx1)
+    tree_numbers = mesh_text[idx1:idx2].split(',')
+    category = [Category_dict[each_tree.strip()[:1]] for each_tree in tree_numbers]
+    category = set(category)
+    category = "/".join(category)
     return category
 
