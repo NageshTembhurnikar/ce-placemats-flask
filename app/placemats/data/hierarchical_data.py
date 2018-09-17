@@ -4,7 +4,7 @@ from itertools import combinations
 from collections import defaultdict
 from app.placemats.data.ncbi_client import get_mesh_category
 from app.placemats.data.frequency_of_word_occurrences import *
-
+from app.placemats.data.mesh_categories import mesh_categories
 
 logger = logging.getLogger(__name__)
 
@@ -15,28 +15,30 @@ def hierarchical_data(edge_to_nodes: dict, node_whitelist: set=None):
     keyword_category_dict = defaultdict()
     top_150_keywords = compute_frequent_keywords(edge_to_nodes, CUTOFF=150)
 
-    key_count = 0
     for edges, nodes in edge_to_nodes.items():
         new_nodes = []
-
         for n in nodes:
-
-            if n not in top_150_keywords: # limit keywords to less than 150
+            if n not in top_150_keywords:
                 continue
             else:
 
                 if n in keyword_category_dict:
                     new_nodes.append(keyword_category_dict[n])
                 else:
-                    renamed_node = get_mesh_category(n) + '.' + n
-                    renamed_node = renamed_node.replace(' and ', '+')
-                    renamed_node = renamed_node.replace('_and_', '+')
-                    # renamed_node = renamed_node.replace(' ', '')
+
+                    if n in mesh_categories:
+                        renamed_node = str(mesh_categories[n] + '.' + n)
+
+                    else:
+                        logging.info('Category for %s does not exist; querying MeSH via Entrez', n)
+                        category = get_mesh_category(n)
+                        renamed_node = category + '.' + n
+                        mesh_categories[n] = category
+
                     new_nodes.append(renamed_node)
                     keyword_category_dict[n] = renamed_node
-                    key_count += 1
 
-            keywords.extend(new_nodes)
+                keywords.extend(new_nodes)
 
         for n1, n2 in combinations(new_nodes, 2):
             if node_whitelist is not None and (n1 not in node_whitelist or n2 not in node_whitelist):
