@@ -114,7 +114,7 @@ def main():
         'NCBI_EMAIL': 'email',
         'NCBI_API_KEY': 'api_key',
     }))
-
+    WidgetsTaskConsumer().consume_forever()
     while True:
         try:
             WidgetsTaskConsumer().consume_forever()
