@@ -4,7 +4,7 @@ decorator==4.3.0
 Flask==1.0.1
 Flask-Cors==3.0.4
 flask-swagger==0.2.13
-geotext==0.3.0
+geotext==0.4.0
 iso3166==0.8
 itsdangerous==0.24
 Jinja2==2.10
