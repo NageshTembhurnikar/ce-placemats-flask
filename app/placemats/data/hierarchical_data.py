@@ -13,12 +13,12 @@ def hierarchical_data(edge_to_nodes: dict, node_whitelist: set=None):
     graph = nx.Graph()
     keywords = []
     keyword_category_dict = defaultdict()
-    top_150_keywords = compute_frequent_keywords(edge_to_nodes, CUTOFF=150)
+    top_n_keywords = compute_frequent_keywords(edge_to_nodes, CUTOFF=100)
 
     for edges, nodes in edge_to_nodes.items():
         new_nodes = []
         for n in nodes:
-            if n not in top_150_keywords:
+            if n not in top_n_keywords:
                 continue
             else:
 
