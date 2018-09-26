@@ -17,7 +17,9 @@ def adjacency_matrix(edge_to_nodes: dict, node_whitelist: set=None):
     :return:
     """
     graph = nx.Graph()
+    author_list = []
     for edge, nodes in edge_to_nodes.items():
+        author_list.extend(nodes)
         for n1, n2 in combinations(nodes, 2):
             if node_whitelist is not None and (n1 not in node_whitelist or n2 not in node_whitelist):
                 continue
@@ -25,6 +27,12 @@ def adjacency_matrix(edge_to_nodes: dict, node_whitelist: set=None):
                 graph[n1][n2]['weight'] += 1
             else:
                 graph.add_edge(n1, n2, weight=1)
+
+    author_publication_count = []
+    # Added to count the number of publication each aouthor has
+    for n in graph.nodes:
+        author_publication_count.append({'name': n, 'count': author_list.count(n)})
+
     nodes = []
     node_to_index = {}
     idx = 0
@@ -42,4 +50,5 @@ def adjacency_matrix(edge_to_nodes: dict, node_whitelist: set=None):
     return {
         'nodes': nodes,
         'links': links,
+        'publication_counts': author_publication_count
     }
