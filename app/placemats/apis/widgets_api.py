@@ -43,7 +43,9 @@ class WidgetsApi(MethodView, BaseApi):
                 'term': term,
                 'widget': widget['spec_type'],
                 'name': response['name'],
-                'time': datetime.now()
+                'email': response['email'],
+                'user_id': response['sub'],
+                'queried_on': datetime.now()
             })
         except:
             pass
