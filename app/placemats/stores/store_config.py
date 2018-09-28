@@ -19,3 +19,7 @@ def layouts_store() -> BaseStore:
 
 def widgets_store() -> BaseStore:
     return _get_store('widgets')
+
+
+def query_log_store() -> BaseStore:
+    return _get_store('query_log')
