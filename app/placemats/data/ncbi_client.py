@@ -21,6 +21,7 @@ DATE_OF_PUBLICATION = 'DP'
 TERMS = 'MH'
 J_TITLE = 'JT'
 AUTHOR_NAME = 'AU'
+PUBLICATION_TYPE = 'PT'
 
 def configure_client(email='dev.robot@gmail.com', api_key=None):
     """
@@ -90,10 +91,22 @@ def esearch(*args, **kwargs):
     """
     return call(Bio.Entrez.esearch, *args, **kwargs)
 
-
+'''
 def pubmed_search(term, skip=0, limit=MAX_PER_PAGE, sort='relevance'):
     retmax = min(limit, MAX_PER_PAGE)
     out = esearch(db='pubmed', sort=sort, term=term, retstart=skip, retmax=retmax)
+    logger.info('Pubmed search query: %s ; translation-set: %s', term, out['TranslationSet'])
+    return out
+'''
+def pubmed_search(term, pub_type = '', skip=0, limit=MAX_PER_PAGE, sort='relevance'):
+    retmax = min(limit, MAX_PER_PAGE)
+    search_term = term
+    if pub_type == 'research':
+        search_term = term + '[ALL] AND ( Journal Article[PTYP] OR Multicenter Study[PTYP])'
+    if pub_type == 'clinical':
+        search_term = term + '[ALL] AND (Adaptive Clinical Trial[PTYP] OR Case Reports [PTYP] OR Clinical Conference[PTYP] OR Clinical Study[PTYP] OR Clinical Trial, Phase I[PTYP] OR Clinical Trial, Phase II[PTYP] OR Clinical Trial, Phase III[PTYP] OR Clinical Trial, Phase IV[PTYP] OR Clinical Trial[PTYP] OR Comparative Study[PTYP]  OR Controlled Clinical Trial[PTYP]  OR Equivalence Trial[PTYP] OR Observational Study[PTYP] OR Pragmatic Clinical Trial[PTYP] OR Randomized Controlled Trial[PTYP])'
+
+    out = esearch(db='pubmed', sort=sort, term=search_term, retstart=skip, retmax=retmax)
     logger.info('Pubmed search query: %s ; translation-set: %s', term, out['TranslationSet'])
     return out
 
@@ -110,13 +123,13 @@ def get_medline_infos(ids):
     return infos
 
 
-def get_pmids_for_term(term, limit):
+def get_pmids_for_term(term, pub_type, limit):
     pmids = []
-    current = pubmed_search(term)
+    current = pubmed_search(term, pub_type)
     current_id_list = current['IdList']
     while len(pmids) < limit and current_id_list:
         pmids.extend(current_id_list)
-        current = pubmed_search(term, skip=len(pmids))
+        current = pubmed_search(term, pub_type = pub_type, skip=len(pmids))
         current_id_list = current['IdList']
     return pmids[:limit]
 
@@ -126,8 +139,9 @@ Article = namedtuple('Article', ['title', 'abstract', 'date_of_publication'])
 KeywordInfo = namedtuple('KeywordInfo', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_articles'])
 KeywordInfo2 = namedtuple('KeywordInfo2', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_authors','keyword_to_jtitle','keyword_to_authors'])
 
-def affiliations(term, limit=20_000) -> typing.Dict[str, str]:
-    medline_infos = get_medline_infos(get_pmids_for_term(term, limit))
+def affiliations(term, pub_type = '', limit=20_000) -> typing.Dict[str, str]:
+
+    medline_infos = get_medline_infos(get_pmids_for_term(term, pub_type, limit))
     out = {}
     for m_info in medline_infos:
         if AFFILIATION not in m_info:
@@ -144,15 +158,21 @@ def author_info(term, limit=20_000):
     pmid_to_articles = {}
     medline_infos = get_medline_infos(pmids)
     for m_info in medline_infos:
+        print(m_info)
         if AUTHOR_NAME not in m_info:
             logger.warning('[author_info] Author name not found for term: %s ; PMID: %s', term, m_info[PMID])
             continue
+        if PUBLICATION_TYPE not in m_info:
+            logger.warning('[author_info] Publication Type name not found for term: %s ; PMID: %s', term, m_info[PMID])
+            continue
+
         pmid = m_info[PMID]
         for name in m_info[AUTHOR_NAME]:
             author_to_pmids[name].add(pmid)
             pmid_to_authors[pmid].add(name)
             publication_year = extract_publication_year(m_info.get(DATE_OF_PUBLICATION))
             pmid_to_articles[pmid] = Article(m_info.get(TITLE), m_info.get(ABSTRACT), publication_year)
+
     return AuthorInfo(pmid_to_authors, author_to_pmids, pmid_to_articles)
 
 
