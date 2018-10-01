@@ -24,4 +24,8 @@ def get_country_counts(strings):
             keys_to_pop.append(k)
     for k in keys_to_pop:
         country_counts.pop(k, None)
-    return country_counts, code_to_country
+
+    country_stats = []
+    for code in country_counts:
+        country_stats.append({'id': code_to_country[code].alpha3, 'name': code_to_country[code].name, 'articles': country_counts[code]})
+    return country_stats
