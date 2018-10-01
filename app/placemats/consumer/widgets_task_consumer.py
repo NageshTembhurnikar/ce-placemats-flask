@@ -58,7 +58,7 @@ class WidgetsTaskConsumer(BaseConsumer):
     def _author_world_map(self, task_info: dict):
         term, = task_info['arguments']
         af = affiliations(term,'research')
-        country_stats_research = get_country_counts(af.values)
+        country_stats_research = get_country_counts(af.values())
         af = affiliations(term, 'clinical')
         country_stats_clinical = []
         if af:
