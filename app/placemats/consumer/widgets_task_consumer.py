@@ -57,13 +57,14 @@ class WidgetsTaskConsumer(BaseConsumer):
 
     def _author_world_map(self, task_info: dict):
         term, = task_info['arguments']
-        af = affiliations(term)
-        country_counts, code_to_country = get_country_counts(af.values())
-        return [{
-            'id': code_to_country[code].alpha3,
-            'name': code_to_country[code].name,
-            'articles': country_counts[code],
-        } for code in country_counts]
+        af = affiliations(term,'research')
+        country_stats_research = get_country_counts(af.values)
+        af = affiliations(term, 'clinical')
+        country_stats_clinical = []
+        if af:
+            country_stats_clinical = get_country_counts(af.values())
+        return [{'research': country_stats_research,
+                 'clinical': country_stats_clinical}]
 
     def _word_cloud(self, task_info: dict):
         term, = task_info['arguments']
