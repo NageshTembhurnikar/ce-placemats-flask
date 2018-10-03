@@ -152,7 +152,7 @@ def affiliations(term, pub_type = '', limit=20_000) -> typing.Dict[str, str]:
 
 
 def author_info(term, limit=20_000):
-    pmids = get_pmids_for_term(term, limit)
+    pmids = get_pmids_for_term(term, None, limit)
     pmid_to_authors = defaultdict(set)
     author_to_pmids = defaultdict(set)
     pmid_to_articles = {}
@@ -176,7 +176,7 @@ def author_info(term, limit=20_000):
 
 
 def keyword_info(term, limit=20_000):
-    pmids = get_pmids_for_term(term, limit)
+    pmids = get_pmids_for_term(term, None, limit)
     pmids_to_keywords = defaultdict(set)
     keyword_to_pmids = defaultdict(set)
     pmid_to_articles = {}
@@ -202,7 +202,7 @@ def keyword_info_astericks(term, limit=20_000):
     :param limit:
     :return:
     '''
-    pmids = get_pmids_for_term(term, limit)
+    pmids = get_pmids_for_term(term, None, limit)
     pmids_to_keywords = defaultdict(set)
     keyword_to_pmids = defaultdict(set)
     pmid_to_articles = {}
@@ -238,7 +238,7 @@ def keyword_info2(term, limit=20_000):
     :param limit:
     :return:
     '''
-    pmids = get_pmids_for_term(term, limit)
+    pmids = get_pmids_for_term(term, None, limit)
     pmids_to_keywords = defaultdict(set)
     keyword_to_pmids = defaultdict(set)
     pmid_to_authors = defaultdict(set)
