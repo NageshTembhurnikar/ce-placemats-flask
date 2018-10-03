@@ -102,7 +102,7 @@ def pubmed_search(term, pub_type = '', skip=0, limit=MAX_PER_PAGE, sort='relevan
     retmax = min(limit, MAX_PER_PAGE)
     search_term = term
     if pub_type == 'research':
-        search_term = term + '[ALL] AND ( Journal Article[PTYP] OR Multicenter Study[PTYP])'
+        search_term = term + '[ALL] AND ( Journal Article[PTYP] OR Multicenter Study[PTYP] OR Editorial[PTYP] OR Introductory Journal Article[PTYP] OR News[PYPT] OR Newspaper Article[PYPT] OR Review[PYPT] OR Validation Studies[PYPT]'
     if pub_type == 'clinical':
         search_term = term + '[ALL] AND (Adaptive Clinical Trial[PTYP] OR Case Reports [PTYP] OR Clinical Conference[PTYP] OR Clinical Study[PTYP] OR Clinical Trial, Phase I[PTYP] OR Clinical Trial, Phase II[PTYP] OR Clinical Trial, Phase III[PTYP] OR Clinical Trial, Phase IV[PTYP] OR Clinical Trial[PTYP] OR Comparative Study[PTYP]  OR Controlled Clinical Trial[PTYP]  OR Equivalence Trial[PTYP] OR Observational Study[PTYP] OR Pragmatic Clinical Trial[PTYP] OR Randomized Controlled Trial[PTYP])'
 
