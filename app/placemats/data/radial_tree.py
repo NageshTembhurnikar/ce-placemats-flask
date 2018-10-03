@@ -38,7 +38,7 @@ def radial_tree(pmids_to_keywords: dict, term):
     # Generate the data structure to output
     axis_depth1 = []
     # Select 7 elements as the value for inner branch
-    branch2_value = 7
+    branch2_value = 28
     # Select only first 5 key,values to assemble to the collapsible data
     x = itertools.islice(keyword_ce_dict_sorted.items(), 0, 5)
     for k, v in x:
