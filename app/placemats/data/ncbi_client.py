@@ -98,13 +98,13 @@ def pubmed_search(term, skip=0, limit=MAX_PER_PAGE, sort='relevance'):
     logger.info('Pubmed search query: %s ; translation-set: %s', term, out['TranslationSet'])
     return out
 '''
-def pubmed_search(term, pub_type = '', skip=0, limit=MAX_PER_PAGE, sort='relevance'):
+def pubmed_search(term, pub_type = None, skip=0, limit=MAX_PER_PAGE, sort='relevance'):
     retmax = min(limit, MAX_PER_PAGE)
     search_term = term
     if pub_type == 'research':
-        search_term = term + '[ALL] AND ( Journal Article[PTYP] OR Multicenter Study[PTYP] OR Editorial[PTYP] OR Introductory Journal Article[PTYP] OR News[PYPT] OR Newspaper Article[PYPT] OR Review[PYPT] OR Validation Studies[PYPT]'
+        search_term = term + '[ALL] AND (("Journal Article"[PTYP]) OR ("Multicenter Study"[PTYP]) OR ("Editorial"[PTYP]) OR ("Introductory Journal Article"[PTYP]) OR ("News"[PYPT]) OR ("Newspaper Article"[PYPT]) OR ("Review"[PYPT]) OR ("Validation Studies"[PYPT]))'
     if pub_type == 'clinical':
-        search_term = term + '[ALL] AND (Adaptive Clinical Trial[PTYP] OR Case Reports [PTYP] OR Clinical Conference[PTYP] OR Clinical Study[PTYP] OR Clinical Trial, Phase I[PTYP] OR Clinical Trial, Phase II[PTYP] OR Clinical Trial, Phase III[PTYP] OR Clinical Trial, Phase IV[PTYP] OR Clinical Trial[PTYP] OR Comparative Study[PTYP]  OR Controlled Clinical Trial[PTYP]  OR Equivalence Trial[PTYP] OR Observational Study[PTYP] OR Pragmatic Clinical Trial[PTYP] OR Randomized Controlled Trial[PTYP]) OR Twin Study[PYPT]'
+        search_term = term + '[ALL] AND (("Adaptive Clinical Trial"[PTYP]) OR ("Case Reports"[PTYP]) OR ("Clinical Conference"[PTYP]) OR ("Clinical Study"[PTYP]) OR ("Clinical Trial, Phase I"[PTYP]) OR ("Clinical Trial, Phase II"[PTYP]) OR ("Clinical Trial, Phase III"[PTYP]) OR ("Clinical Trial, Phase IV"[PTYP]) OR ("Clinical Trial"[PTYP]) OR ("Comparative Study"[PTYP])  OR ("Controlled Clinical Trial"[PTYP])  OR ("Equivalence Trial"[PTYP]) OR ("Observational Study"[PTYP]) OR ("Pragmatic Clinical Trial"[PTYP]) OR ("Randomized Controlled Trial"[PTYP]) OR ("Twin Study"[PYPT]))'
 
     out = esearch(db='pubmed', sort=sort, term=search_term, retstart=skip, retmax=retmax)
     logger.info('Pubmed search query: %s ; translation-set: %s', term, out['TranslationSet'])
@@ -139,7 +139,7 @@ Article = namedtuple('Article', ['title', 'abstract', 'date_of_publication'])
 KeywordInfo = namedtuple('KeywordInfo', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_articles'])
 KeywordInfo2 = namedtuple('KeywordInfo2', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_authors','keyword_to_jtitle','keyword_to_authors'])
 
-def affiliations(term, pub_type = '', limit=20_000) -> typing.Dict[str, str]:
+def affiliations(term, pub_type = None, limit=20_000) -> typing.Dict[str, str]:
 
     medline_infos = get_medline_infos(get_pmids_for_term(term, pub_type, limit))
     out = {}
