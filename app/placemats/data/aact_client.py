@@ -17,7 +17,7 @@ def connect_aact(query_string, parameters=None):
     return records
 
 
-def fetch_clin_info(term):
+def fetch_ct_info(term):
     search_term = '%' + term.lower() + '%'
 
     query = str('SELECT nct_id FROM studies WHERE (LOWER(studies.brief_title) LIKE %s OR LOWER(studies.official_title) LIKE %s) \
@@ -63,3 +63,5 @@ def fetch_clin_info(term):
         [nctid_to_conditions[r[0]].append(r[1]) if r[0] in list(nctid_to_conditions.keys())
          else nctid_to_conditions.update({r[0]: [r[1]]}) for r in records]
         return ClinicalInfo(nctid_to_title, nctid_to_status, status_to_nctid, nctid_to_conditions)
+    else:
+        return None
