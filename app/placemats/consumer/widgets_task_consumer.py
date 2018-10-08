@@ -1,4 +1,5 @@
 import app.placemats.data.ncbi_client as ncbi
+from app.placemats.data.aact_client import *
 from app.placemats.data.widget_spec_types import *
 from app.placemats.consumer.consumer import BaseConsumer
 from app.placemats.stores.task_queue_config import widgets_task_queue
@@ -8,6 +9,7 @@ from app.placemats.data.reporter_client import *
 from app.placemats.data.adjacency_matrix import *
 from app.placemats.data.hierarchical_data import *
 from app.placemats.data.concept_map import *
+from app.placemats.data.concept2_map import *
 from app.placemats.data.budget_data import *
 from app.placemats.data.radial_tree import *
 from app.placemats.apis.layouts_api import STATUS_COMPLETE
@@ -79,7 +81,13 @@ class WidgetsTaskConsumer(BaseConsumer):
     def _concept_map_keywords_journal_author(self, task_info: dict):
         term, = task_info['arguments']
         keywords = keyword_info2(term)
-        return concept_map(keywords.pmids_to_keywords, keywords.keyword_to_pmids, keywords.pmid_to_authors, keywords.keyword_to_jtitle, keywords.keyword_to_authors )
+        concept_map1_data = concept_map(keywords.pmids_to_keywords, keywords.keyword_to_pmids, keywords.pmid_to_authors, keywords.keyword_to_jtitle, keywords.keyword_to_authors )
+        trials = get_ct_info(term)
+        concept_map2_data = []
+        if trials:
+            concept_map2_data = concept_map2(trials.nctid_to_title, trials.status_to_nctid, trials.nctid_to_conditions)
+        return ({'pub_med': concept_map1_data,
+                 'clin_trials': concept_map2_data})
 
     def _project_cost_information(self, task_info: dict):
         term, = task_info['arguments']
