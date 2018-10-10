@@ -1,5 +1,6 @@
 import networkx as nx
 import logging
+import string
 from itertools import combinations
 from collections import defaultdict
 from app.placemats.data.ncbi_client import get_mesh_category
@@ -8,17 +9,17 @@ from app.placemats.data.mesh_categories import mesh_categories
 
 logger = logging.getLogger(__name__)
 
-def hierarchical_data(edge_to_nodes: dict, node_whitelist: set=None):
+def hierarchical_data(edge_to_nodes: dict):
     # Creating a graph of keywords
     graph = nx.Graph()
     keywords = []
     keyword_category_dict = defaultdict()
-    top_n_keywords = compute_frequent_keywords(edge_to_nodes, CUTOFF=100)
+    top_100_keywords = compute_frequent_keywords(edge_to_nodes, CUTOFF=100)
 
     for edges, nodes in edge_to_nodes.items():
         new_nodes = []
         for n in nodes:
-            if n not in top_n_keywords:
+            if n not in top_100_keywords:
                 continue
             else:
 
@@ -27,12 +28,12 @@ def hierarchical_data(edge_to_nodes: dict, node_whitelist: set=None):
                 else:
 
                     if n in mesh_categories:
-                        renamed_node = str(mesh_categories[n] + '.' + n)
+                        renamed_node = str(mesh_categories[n] + '.' + n.replace("."," "))
 
                     else:
                         logging.info('Category for %s does not exist; querying MeSH via Entrez', n)
                         category = get_mesh_category(n)
-                        renamed_node = category + '.' + n
+                        renamed_node = category + '.' + n.replace("."," ")
                         mesh_categories[n] = category
 
                     new_nodes.append(renamed_node)
@@ -41,8 +42,6 @@ def hierarchical_data(edge_to_nodes: dict, node_whitelist: set=None):
                 keywords.extend(new_nodes)
 
         for n1, n2 in combinations(new_nodes, 2):
-            if node_whitelist is not None and (n1 not in node_whitelist or n2 not in node_whitelist):
-                continue
             if graph.has_edge(n1, n2):
                 graph[n1][n2]['weight'] += 1
             else:
