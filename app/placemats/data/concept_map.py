@@ -4,7 +4,7 @@ from app.placemats.data.frequency_of_word_occurrences import *
 
 logger = logging.getLogger(__name__)
 
-def concept_map(pmids_to_keywords: dict, keyword_to_pmids: dict, pmid_to_authors: dict, keyword_to_jtitle: dict, keyword_to_authors: dict):
+def concept_map(pmids_to_keywords: dict, keyword_to_pmids: dict, pmid_to_authors: dict, keyword_to_jtitle: dict, keyword_to_authors: dict, author_to_jtitle: dict):
     top_keywords = []
     pmid_list = []
     top_authors = []
@@ -70,4 +70,15 @@ def concept_map(pmids_to_keywords: dict, keyword_to_pmids: dict, pmid_to_authors
         journal_list += [mylist]
         # concept_map_data = concept_map_data + [mylist]
     concept_map_data = author_list + journal_list
-    return concept_map_data
+
+    author_jtitle_data = []
+    for key, values in author_to_jtitle.items():
+        if key in top_authors:
+            temp = []
+            my_string = []
+            my_string = my_string + [key]
+            for each_value in values:
+                temp.append(each_value)
+            my_string = my_string + [temp]
+            author_jtitle_data = author_jtitle_data + [my_string]
+    return concept_map_data, author_jtitle_data

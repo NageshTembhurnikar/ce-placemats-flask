@@ -137,7 +137,7 @@ def get_pmids_for_term(term, pub_type, limit):
 AuthorInfo = namedtuple('AuthorInfo', ['pmid_to_authors', 'author_to_pmids', 'pmid_to_articles'])
 Article = namedtuple('Article', ['title', 'abstract', 'date_of_publication'])
 KeywordInfo = namedtuple('KeywordInfo', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_articles'])
-KeywordInfo2 = namedtuple('KeywordInfo2', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_authors','keyword_to_jtitle','keyword_to_authors'])
+KeywordInfo2 = namedtuple('KeywordInfo2', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_authors','keyword_to_jtitle','keyword_to_authors','author_to_jtitle'])
 
 def affiliations(term, pub_type = None, limit=20_000) -> typing.Dict[str, str]:
 
@@ -244,6 +244,7 @@ def keyword_info2(term, limit=20_000):
     pmid_to_authors = defaultdict(set)
     keyword_to_jtitle = defaultdict(set)
     keyword_to_authors = defaultdict(set)
+    author_to_jtitle = defaultdict(set)
     medline_infos = get_medline_infos(pmids)
 
     for m_info in medline_infos:
@@ -273,9 +274,10 @@ def keyword_info2(term, limit=20_000):
                     for each_author in m_info[AUTHOR_NAME][0:2]:
                         keyword_to_authors[extracted_term].add(each_author)
                         pmid_to_authors[pmid].add(each_author)
+                        author_to_jtitle[each_author].add(m_info[J_TITLE])
 
 
-    return KeywordInfo2(pmids_to_keywords, keyword_to_pmids, pmid_to_authors, keyword_to_jtitle, keyword_to_authors)
+    return KeywordInfo2(pmids_to_keywords, keyword_to_pmids, pmid_to_authors, keyword_to_jtitle, keyword_to_authors, author_to_jtitle)
 
 def extract_publication_year(date_of_publication):
     year = extract_year_format1(date_of_publication)
