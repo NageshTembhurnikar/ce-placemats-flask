@@ -79,7 +79,8 @@ class WidgetsTaskConsumer(BaseConsumer):
     def _concept_map_keywords_journal_author(self, task_info: dict):
         term, = task_info['arguments']
         keywords = keyword_info2(term)
-        return concept_map(keywords.pmids_to_keywords, keywords.keyword_to_pmids, keywords.pmid_to_authors, keywords.keyword_to_jtitle, keywords.keyword_to_authors )
+        return concept_map(keywords.pmids_to_keywords, keywords.keyword_to_pmids, keywords.pmid_to_authors,
+                           keywords.keyword_to_jtitle, keywords.keyword_to_authors, keywords.author_to_jtitle)
 
     def _project_cost_information(self, task_info: dict):
         term, = task_info['arguments']
