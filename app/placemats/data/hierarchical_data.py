@@ -55,4 +55,12 @@ def hierarchical_data(edge_to_nodes: dict):
         imports = [nb for nb in graph.neighbors(n)]
         co_occurences.append({'name': n, 'size': keywords.count(n), 'imports': imports})
 
-    return co_occurences
+    links = []
+    for n1, n2, weight in graph.edges(data='weight'):
+        links.append({
+            'node1': n1,
+            'node2': n2,
+            'value': weight,
+        })
+
+    return co_occurences, links
