@@ -6,6 +6,8 @@ from itertools import chain
 import itertools
 from app.placemats.data.ncbi_client import *
 from app.placemats.data.ce_terms import ce_terms
+from app.placemats.data.mesh_summaries import mesh_summaries
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +45,14 @@ def radial_tree(pmids_to_keywords: dict, term):
     x = itertools.islice(keyword_ce_dict_sorted.items(), 0, 5)
     for k, v in x:
         axis_depth2 = []
+
         for each_v in v:
-            axis_depth2.append({'name': each_v, 'size': key_counter[each_v]})
+            axis_depth3 = []
+            if each_v in mesh_summaries:
+                axis_depth3.append({'name': mesh_summaries[each_v]})
+            else:
+                axis_depth3.append({'name': ''})
+            axis_depth2.append({'name': each_v, 'children': axis_depth3, 'size': key_counter[each_v]})
         axis_depth2_sorted = sorted(axis_depth2, key=lambda user: user['size'], reverse=True)
         branch2 = len(axis_depth2_sorted)
         if branch2 > branch2_value:
