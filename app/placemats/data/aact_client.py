@@ -71,14 +71,13 @@ def fetch_clin_info(term):
         [nctid_to_locations[r[0]].append(r[1]) if r[0] in list(nctid_to_locations.keys())
          else nctid_to_locations.update({r[0]: [r[1]]}) for r in records]
 
-    query_string = str(
-        'select nct_id, status FROM facilities WHERE facilities.nct_id IN %s')
-    records = connect_aact(query_string, (tuple(ids),))
-    #print(records)
-    [nctid_to_loc_status[r[0]].append(r[1]) if r[0] in list(nctid_to_loc_status.keys())
-     else nctid_to_loc_status.update({r[0]: [r[1]]}) for r in records]
+        query_string = str('select nct_id, status FROM facilities WHERE facilities.nct_id IN %s')
+        records = connect_aact(query_string, (tuple(ids),))
+        [nctid_to_loc_status[r[0]].append(r[1]) if r[0] in list(nctid_to_loc_status.keys())
+         else nctid_to_loc_status.update({r[0]: [r[1]]}) for r in records]
 
-    #return None
-    return ClinicalInfo(nctid_to_title, nctid_to_status, nctid_to_conditions, nctid_to_locations, nctid_to_loc_status)
+        return ClinicalInfo(nctid_to_title, nctid_to_status, nctid_to_conditions, nctid_to_locations, nctid_to_loc_status)
+    else:
+        return None
 
 
