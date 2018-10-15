@@ -55,19 +55,15 @@ def fetch_clin_info(term):
          else nctid_to_status.update({r[0]: [r[1]]}) for r in records]
 
 
-        query_string = str(
-            'select name, nct_id conditions FROM conditions WHERE conditions.nct_id IN %s')
+        query_string = str('select name, nct_id conditions FROM conditions WHERE conditions.nct_id IN %s')
         records = connect_aact(query_string, (tuple(ids),))
         #print(records)
         [nctid_to_conditions[r[0]].append(r[1]) if r[0] in list(nctid_to_conditions.keys())
          else nctid_to_conditions.update({r[0]: [r[1]]}) for r in records]
 
-        query_string = str(
-            'select nct_id, name FROM facilities WHERE facilities.nct_id IN %s')
+        query_string = str('select nct_id, name FROM facilities WHERE facilities.nct_id IN %s')
         records = connect_aact(query_string, (tuple(ids),))
 
-
-        #print(records)
         [nctid_to_locations[r[0]].append(r[1]) if r[0] in list(nctid_to_locations.keys())
          else nctid_to_locations.update({r[0]: [r[1]]}) for r in records]
 
