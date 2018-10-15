@@ -4,12 +4,14 @@ from app.placemats.consumer.consumer import BaseConsumer
 from app.placemats.stores.task_queue_config import widgets_task_queue
 from app.placemats.stores.store_config import widgets_store
 from app.placemats.data.ncbi_client import *
+from app.placemats.data.aact_client import *
 from app.placemats.data.reporter_client import *
 from app.placemats.data.adjacency_matrix import *
 from app.placemats.data.hierarchical_data import *
 from app.placemats.data.concept_map import *
 from app.placemats.data.budget_data import *
 from app.placemats.data.radial_tree import *
+from app.placemats.data.radial_tree_clin import *
 from app.placemats.apis.layouts_api import STATUS_COMPLETE
 from app.placemats.data.geo import *
 from app.placemats.data.word_cloud import *
@@ -96,7 +98,12 @@ class WidgetsTaskConsumer(BaseConsumer):
     def _radial_tree(self, task_info: dict):
         term, = task_info['arguments']
         keywords = keyword_info_astericks(term)
-        return radial_tree(keywords.pmids_to_keywords, term)
+        radial_tree_data_mesh = radial_tree(keywords.pmids_to_keywords, term)
+        radial_tree_data_aatc = []
+        cts = fetch_clin_info(term)
+        if cts:
+            radial_tree_data_aatc = radial_tree_for_clinical_trials(cts.nctid_to_title, cts.nctid_to_status, cts.nctid_to_conditions, cts.nctid_to_locations, term):
+        return [{'mesh_tree':radial_tree_data_mesh, 'trials': radial_tree_data_aatc}]
 
 
     def _update_store(self, task_info, data):
