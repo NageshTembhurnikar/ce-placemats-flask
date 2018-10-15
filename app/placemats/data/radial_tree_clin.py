@@ -1,3 +1,7 @@
+import logging
+from app.placemats.data.ncbi_client import *
+
+logger = logging.getLogger(__name__)
 
 def radial_tree_for_clinical_trials(nctid_to_title, nctid_to_status, nctid_to_conditions, nctid_to_locations, term):
 
