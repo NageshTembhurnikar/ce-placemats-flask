@@ -102,7 +102,7 @@ class WidgetsTaskConsumer(BaseConsumer):
         radial_tree_data_aatc = []
         cts = fetch_clin_info(term)
         if cts:
-            radial_tree_data_aatc = radial_tree_for_clinical_trials(cts.nctid_to_title, cts.nctid_to_status, cts.nctid_to_conditions, cts.nctid_to_locations, term)
+            radial_tree_data_aatc = radial_tree_for_clinical_trials(cts.nctid_to_title, cts.nctid_to_status, cts.nctid_to_conditions, term)
         return [{'mesh_tree':radial_tree_data_mesh, 'trials': radial_tree_data_aatc}]
 
 
