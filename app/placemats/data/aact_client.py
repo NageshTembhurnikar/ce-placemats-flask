@@ -17,11 +17,10 @@ def connect_aact(query_string, parameters=None):
 
 
 def fetch_clin_info(term):
-    search_term = '%' + term.lower() + '%'
+    search_term = term.lower()
 
     query = str('select nct_id, name FROM interventions WHERE LOWER(interventions.name) LIKE %s')
     records1 = connect_aact(query, (search_term,))
-    #print(records1)
 
     nctid_to_title = defaultdict(set)
     nctid_to_conditions = defaultdict(set)
