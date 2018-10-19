@@ -270,11 +270,19 @@ def keyword_info2(term, limit=20_000):
                     pmids_to_keywords[pmid].add(extracted_term)
                     keyword_to_jtitle[extracted_term].add(m_info[J_TITLE])
 
+                    keyword_to_authors[extracted_term].add(m_info[AUTHOR_NAME][0])
+                    pmid_to_authors[pmid].add(m_info[AUTHOR_NAME][0])
+                    author_to_jtitle[m_info[AUTHOR_NAME][0]].add(m_info[J_TITLE])
 
-                    for each_author in m_info[AUTHOR_NAME][0:1]:
-                        keyword_to_authors[extracted_term].add(each_author)
-                        pmid_to_authors[pmid].add(each_author)
-                        author_to_jtitle[each_author].add(m_info[J_TITLE])
+                    if len(m_info[AUTHOR_NAME]) > 1:
+                        keyword_to_authors[extracted_term].add(m_info[AUTHOR_NAME][-1])
+                        pmid_to_authors[pmid].add(m_info[AUTHOR_NAME][-1])
+                        author_to_jtitle[m_info[AUTHOR_NAME][-1]].add(m_info[J_TITLE])
+
+                    #for each_author in m_info[AUTHOR_NAME][0:1]:
+                        #keyword_to_authors[extracted_term].add(each_author)
+                        #pmid_to_authors[pmid].add(each_author)
+                        #author_to_jtitle[each_author].add(m_info[J_TITLE])
 
 
     return KeywordInfo2(pmids_to_keywords, keyword_to_pmids, pmid_to_authors, keyword_to_jtitle, keyword_to_authors, author_to_jtitle)
