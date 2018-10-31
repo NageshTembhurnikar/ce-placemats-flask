@@ -55,7 +55,26 @@ class WidgetsTaskConsumer(BaseConsumer):
         ai = author_info(term)
         a_to_pmids = ai.author_to_pmids
         top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
-        return adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
+        all_authors = []
+        all_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
+
+        ai = author_info(term, 'expert')
+        a_to_pmids = ai.author_to_pmids
+        review_authors = []
+        if a_to_pmids:
+            top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
+            review_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
+
+        ai = author_info(term, 'clinical')
+        a_to_pmids = ai.author_to_pmids
+        clinical_authors = []
+        if a_to_pmids:
+            top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
+            clinical_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
+        return [{'all': all_authors,
+                 'review':review_authors,
+                 'clinical': clinical_authors}]
+
 
     def _author_world_map(self, task_info: dict):
         term, = task_info['arguments']
