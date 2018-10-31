@@ -103,6 +103,8 @@ def pubmed_search(term, pub_type = None, skip=0, limit=MAX_PER_PAGE, sort='relev
     search_term = term
     if pub_type == 'research':
         search_term = term + '[ALL] AND (("Journal Article"[PTYP]) OR ("Multicenter Study"[PTYP]) OR ("Editorial"[PTYP]) OR ("Introductory Journal Article"[PTYP]) OR ("News"[PYPT]) OR ("Newspaper Article"[PYPT]) OR ("Review"[PYPT]) OR ("Validation Studies"[PYPT]))'
+    if pub_type == 'expert':
+        search_term = term + '[ALL] AND ("Review"[PTYP])'
     if pub_type == 'clinical':
         search_term = term + '[ALL] AND (("Adaptive Clinical Trial"[PTYP]) OR ("Case Reports"[PTYP]) OR ("Clinical Conference"[PTYP]) OR ("Clinical Study"[PTYP]) OR ("Clinical Trial, Phase I"[PTYP]) OR ("Clinical Trial, Phase II"[PTYP]) OR ("Clinical Trial, Phase III"[PTYP]) OR ("Clinical Trial, Phase IV"[PTYP]) OR ("Clinical Trial"[PTYP]) OR ("Comparative Study"[PTYP])  OR ("Controlled Clinical Trial"[PTYP])  OR ("Equivalence Trial"[PTYP]) OR ("Observational Study"[PTYP]) OR ("Pragmatic Clinical Trial"[PTYP]) OR ("Randomized Controlled Trial"[PTYP]) OR ("Twin Study"[PYPT]))'
 
@@ -151,8 +153,8 @@ def affiliations(term, pub_type = None, limit=20_000) -> typing.Dict[str, str]:
     return out
 
 
-def author_info(term, limit=20_000):
-    pmids = get_pmids_for_term(term, None, limit)
+def author_info(term, pub_type = None, limit=20_000):
+    pmids = get_pmids_for_term(term, pub_type, limit)
     pmid_to_authors = defaultdict(set)
     author_to_pmids = defaultdict(set)
     pmid_to_articles = {}
