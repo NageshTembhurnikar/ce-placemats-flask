@@ -27,12 +27,12 @@ def adjacency_matrix(edge_to_nodes: dict, node_whitelist: set=None):
                 graph[n1][n2]['weight'] += 1
             else:
                 graph.add_edge(n1, n2, weight=1)
-
+    '''
     author_publication_count = []
     # Added to count the number of publication each aouthor has
     for n in graph.nodes:
         author_publication_count.append({'name': n, 'count': author_list.count(n)})
-
+    '''
     nodes = []
     node_to_index = {}
     idx = 0
@@ -47,8 +47,14 @@ def adjacency_matrix(edge_to_nodes: dict, node_whitelist: set=None):
             'target': node_to_index[n2],
             'value': weight,
         })
+
+    #return {
+    #    'nodes': nodes,
+    #    'links': links,
+    #    'publication_counts': author_publication_count
+    #}
+
     return {
         'nodes': nodes,
-        'links': links,
-        'publication_counts': author_publication_count
-    }
+        'links': links}
+
