@@ -103,6 +103,8 @@ def pubmed_search(term, pub_type = None, skip=0, limit=MAX_PER_PAGE, sort='relev
     search_term = term
     if pub_type == 'research':
         search_term = term + '[ALL] AND (("Journal Article"[PTYP]) OR ("Multicenter Study"[PTYP]) OR ("Editorial"[PTYP]) OR ("Introductory Journal Article"[PTYP]) OR ("News"[PYPT]) OR ("Newspaper Article"[PYPT]) OR ("Review"[PYPT]) OR ("Validation Studies"[PYPT]))'
+    if pub_type == 'journal':
+        search_term = term + '[ALL] AND ("Journal Article"[PTYP]  NOT Review[PTYP])'
     if pub_type == 'expert':
         search_term = term + '[ALL] AND ("Review"[PTYP])'
     if pub_type == 'clinical':
@@ -166,7 +168,6 @@ def author_info(term, pub_type = None, limit=20_000):
         if PUBLICATION_TYPE not in m_info:
             logger.warning('[author_info] Publication Type name not found for term: %s ; PMID: %s', term, m_info[PMID])
             continue
-
         pmid = m_info[PMID]
         for name in m_info[AUTHOR_NAME]:
             author_to_pmids[name].add(pmid)
