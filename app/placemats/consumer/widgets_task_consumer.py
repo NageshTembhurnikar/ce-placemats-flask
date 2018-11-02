@@ -55,8 +55,14 @@ class WidgetsTaskConsumer(BaseConsumer):
         ai = author_info(term)
         a_to_pmids = ai.author_to_pmids
         top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
-        all_authors = []
         all_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
+
+        ai = author_info(term, 'journal')
+        a_to_pmids = ai.author_to_pmids
+        research_authors = []
+        if a_to_pmids:
+            top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
+            research_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
 
         ai = author_info(term, 'expert')
         a_to_pmids = ai.author_to_pmids
@@ -72,7 +78,8 @@ class WidgetsTaskConsumer(BaseConsumer):
             top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
             clinical_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
         return [{'all': all_authors,
-                 'review':review_authors,
+                 'research': research_authors,
+                 'review': review_authors,
                  'clinical': clinical_authors}]
 
 
