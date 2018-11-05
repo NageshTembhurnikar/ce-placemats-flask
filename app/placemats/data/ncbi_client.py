@@ -170,6 +170,8 @@ def author_info(term, pub_type = None, limit=20_000):
             continue
         pmid = m_info[PMID]
         for name in m_info[AUTHOR_NAME]:
+            if name == 'et al.':
+                continue
             author_to_pmids[name].add(pmid)
             pmid_to_authors[pmid].add(name)
             publication_year = extract_publication_year(m_info.get(DATE_OF_PUBLICATION))
