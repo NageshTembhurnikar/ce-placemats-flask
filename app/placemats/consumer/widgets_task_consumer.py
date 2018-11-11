@@ -125,11 +125,19 @@ class WidgetsTaskConsumer(BaseConsumer):
         term, = task_info['arguments']
         keywords = keyword_info_astericks(term)
         radial_tree_data_mesh = radial_tree(keywords.pmids_to_keywords, term)
-        radial_tree_data_aatc = []
-        cts = fetch_clin_info(term)
+        aact_tree_data_by_drug = []
+        aact_tree_data_by_disease = []
+        cts = fetch_clin_info(term, 'drug')
         if cts:
-            radial_tree_data_aatc = radial_tree_for_clinical_trials(cts.nctid_to_title, cts.nctid_to_status, cts.nctid_to_conditions, term)
-        return [{'mesh_tree':radial_tree_data_mesh, 'trials': radial_tree_data_aatc}]
+            aact_tree_data_by_drug = radial_tree_for_clinical_trials(cts.nctid_to_title, cts.nctid_to_status, cts.nctid_to_conditions, cts.nctid_to_phase, cts.nctid_to_sponsors, cts.nctid_to_enrollment, cts.nctid_to_start, cts.nctid_to_end, term)
+
+        cts = fetch_clin_info(term, 'disease')
+        if cts:
+            aact_tree_data_by_disease = radial_tree_for_clinical_trials(cts.nctid_to_title, cts.nctid_to_status, cts.nctid_to_conditions, cts.nctid_to_phase, cts.nctid_to_sponsors, cts.nctid_to_enrollment, cts.nctid_to_start, cts.nctid_to_end, term)
+
+        return [{'mesh_tree': radial_tree_data_mesh,
+                 'trials_by_drug_info': aact_tree_data_by_drug,
+                 'trials_by_disease_info': aact_tree_data_by_disease}]
 
 
     def _update_store(self, task_info, data):
