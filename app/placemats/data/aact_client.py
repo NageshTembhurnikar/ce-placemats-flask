@@ -50,12 +50,14 @@ def fetch_clin_info(term, root_type = None):
         ids = []
         ids = [(r[0]) for r in records1]
 
-        #query_string = str('select nct_id, start_date FROM studies WHERE studies.nct_id IN %s ORDER BY start_date DESC NULLS LAST')
-        #records = connect_aact(query_string, (tuple(ids),))
+        print(len(ids))
 
-        #ids = [(r[0]) for r in records]
+        query_string = str('select nct_id, start_date FROM studies WHERE studies.nct_id IN %s ORDER BY start_date DESC NULLS LAST')
+        records = connect_aact(query_string, (tuple(ids),))
 
-        query_string = str('select nct_id,official_title, overall_status, phase, enrollment, start_date, completion_date  FROM studies WHERE studies.nct_id IN %s ORDER BY start_date DESC NULLS LAST')
+        ids = [(r[0]) for r in records]
+        ids = ids[:1000]
+        query_string = str('select nct_id,official_title, overall_status, phase, enrollment, start_date, completion_date  FROM studies WHERE studies.nct_id IN %s')
         records = connect_aact(query_string, (tuple(ids),))
 
         for r in records:
