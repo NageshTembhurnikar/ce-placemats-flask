@@ -31,7 +31,9 @@ def radial_tree_for_clinical_trials(nctid_to_title, nctid_to_status, nctid_to_co
                 for each_id in ids_in_each_status:
                     study_title = nctid_to_title[each_id]
                     study_sponsor = ', '.join(nctid_to_sponsor[each_id])
-                    onclick_information = {'start date': nctid_to_start[each_id], 'end date': nctid_to_end[each_id],'enrollment': nctid_to_enrollment[each_id]}
+                    onclick_information = {'start date': nctid_to_start[each_id].isoformat() if nctid_to_start[each_id] else '',
+                                           'end date': nctid_to_end[each_id].isoformat() if nctid_to_end[each_id] else '',
+                                           'enrollment': nctid_to_enrollment[each_id] if nctid_to_enrollment[each_id] else ''}
                     axis_depth5.append({'info': onclick_information, 'name': study_title, 'hover': study_sponsor})
                 axis_depth4.append({'name': study_status, 'children': axis_depth5[:50]})
             axis_depth3.append({'name': each_phase, 'children': axis_depth4})
