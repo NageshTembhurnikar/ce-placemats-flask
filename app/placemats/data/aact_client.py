@@ -21,7 +21,7 @@ def convert_date_to_string(datetime_date):
     else:
         return None
 
-def fetch_clin_info(term, root_type = None):
+def fetch_clin_info(term):
 
     search_term = term.lower()
     search_term = '%'+search_term+'%'
@@ -29,13 +29,33 @@ def fetch_clin_info(term, root_type = None):
     #query = str('select DISTINCT study_type FROM studies')
     #records1 = connect_aact(query, (search_term,))
 
-    if root_type == 'drug':
-        query = str('select nct_id, name FROM interventions WHERE LOWER(interventions.name) LIKE %s')
 
-    elif root_type == 'disease':
-        query = str('select nct_id, downcase_name FROM conditions WHERE LOWER(conditions.downcase_name) LIKE %s')
+    query = str('select nct_id, name FROM interventions WHERE LOWER(interventions.name) LIKE %s')
+    records_drugs = connect_aact(query, (search_term,))
 
-    records1 = connect_aact(query, (search_term,))
+    query = str('select nct_id, downcase_name FROM conditions WHERE LOWER(conditions.downcase_name) LIKE %s')
+    records_disease = connect_aact(query, (search_term,))
+
+    if records_drugs and not records_disease:
+        root_type = 'drug'
+        records1 = records_drugs
+    elif not records_drugs and records_disease:
+        root_type = 'disease'
+        records1 = records_disease
+    if not records_drugs and not records_disease:
+        root_type = ''
+        records1 = records_disease
+    else:
+        ids1 = [(r[0]) for r in records_drugs]
+        ids2 = [(r[0]) for r in records_disease]
+        if len(ids1) > len(ids2):
+            root_type = 'drug'
+            records1 = records_drugs
+        else:
+            root_type = 'disease'
+            records1 = records_disease
+
+    print(root_type)
 
     nctid_to_title = defaultdict(set)
     nctid_to_conditions = defaultdict(set)
@@ -56,7 +76,7 @@ def fetch_clin_info(term, root_type = None):
         records = connect_aact(query_string, (tuple(ids),))
 
         ids = [(r[0]) for r in records]
-        ids = ids[:1000]
+        ids = ids[:500]
         query_string = str('select nct_id,official_title, overall_status, phase, enrollment, start_date, completion_date  FROM studies WHERE studies.nct_id IN %s')
         records = connect_aact(query_string, (tuple(ids),))
 
