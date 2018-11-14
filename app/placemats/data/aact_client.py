@@ -1,10 +1,11 @@
+import logging
 import psycopg2
 from collections import defaultdict, namedtuple
 import datetime
 CONN_STRING = "host='aact-db.ctti-clinicaltrials.org' dbname='aact' user='birdseye' password= 'birdseye123'"
 ClinicalInfo = namedtuple('ClinicalInfo', ['nctid_to_title', 'nctid_to_status', 'nctid_to_conditions', 'nctid_to_phase', 'nctid_to_enrollment','nctid_to_start','nctid_to_end','nctid_to_sponsors'])
 
-
+logger = logging.getLogger(__name__)
 def connect_aact(query_string, parameters=None):
     conn = psycopg2.connect(CONN_STRING)
     cursor = conn.cursor()
@@ -55,8 +56,7 @@ def fetch_clin_info(term):
             root_type = 'disease'
             records1 = records_disease
 
-    print(root_type)
-
+    logger.info('search query: %s is of type: %s', term, root_type)
     nctid_to_title = defaultdict(set)
     nctid_to_conditions = defaultdict(set)
     nctid_to_sponsor = defaultdict(set)
@@ -70,7 +70,6 @@ def fetch_clin_info(term):
         ids = []
         ids = [(r[0]) for r in records1]
 
-        print(len(ids))
 
         query_string = str('select nct_id, start_date FROM studies WHERE studies.nct_id IN %s ORDER BY start_date DESC NULLS LAST')
         records = connect_aact(query_string, (tuple(ids),))
@@ -92,14 +91,19 @@ def fetch_clin_info(term):
 
         if root_type == 'drug':
             query_string = str('select name, nct_id conditions FROM conditions WHERE conditions.nct_id IN %s')
+            blank_text = 'Disease Condition\'s Unknown'
 
         elif root_type == 'disease':
             query_string = str('select name, nct_id conditions FROM interventions WHERE interventions.nct_id IN %s')
-
+            blank_text = 'Intervention\'s Unknown'
         records = connect_aact(query_string, (tuple(ids),))
-        [nctid_to_conditions[r[0]].append(r[1]) if r[0] in list(nctid_to_conditions.keys())
-         else nctid_to_conditions.update({r[0]: [r[1]]}) for r in records]
-
+        print(records)
+        if not records:
+            for each_id in ids:
+                nctid_to_conditions[blank_text].add(each_id)
+        else:
+            [nctid_to_conditions[r[0]].append(r[1]) if r[0] in list(nctid_to_conditions.keys())
+             else nctid_to_conditions.update({r[0]: [r[1]]}) for r in records]
         query_string = str('select nct_id,name FROM sponsors WHERE sponsors.nct_id IN %s')
         records = connect_aact(query_string, (tuple(ids),))
         [nctid_to_sponsor[r[0]].append(r[1]) if r[0] in list(nctid_to_sponsor.keys())
