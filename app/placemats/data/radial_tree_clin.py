@@ -36,7 +36,7 @@ def radial_tree_for_clinical_trials(nctid_to_title, nctid_to_status, nctid_to_co
                                            'enrollment': nctid_to_enrollment[each_id] if nctid_to_enrollment[each_id] else ''}
                     axis_depth5.append({'info': onclick_information, 'name': study_title, 'hover': study_sponsor})
                 axis_depth4.append({'name': study_status, 'children': axis_depth5[:50]})
-            axis_depth3.append({'name': each_phase, 'children': axis_depth4})
-        axis_depth2.append({'name': condition, 'children': axis_depth3})
-    clinical_trial_tree.append({'name': term, 'children': axis_depth2})
+            axis_depth3.append({'name': each_phase, 'children': axis_depth4[:50]})
+        axis_depth2.append({'name': condition, 'children': axis_depth3[:50]})
+    clinical_trial_tree.append({'name': term, 'children': axis_depth2[:50]})
     return clinical_trial_tree
