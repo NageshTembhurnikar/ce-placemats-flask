@@ -1,4 +1,3 @@
-import app.placemats.data.ncbi_client as ncbi
 from app.placemats.data.widget_spec_types import *
 from app.placemats.consumer.consumer import BaseConsumer
 from app.placemats.stores.task_queue_config import widgets_task_queue
@@ -7,6 +6,7 @@ from app.placemats.data.ncbi_client import *
 from app.placemats.data.aact_client import *
 from app.placemats.data.reporter_client import *
 from app.placemats.data.adjacency_matrix import *
+from app.placemats.data.adjacency_matrix_for_one import *
 from app.placemats.data.hierarchical_data import *
 from app.placemats.data.concept_map import *
 from app.placemats.data.budget_data import *
@@ -57,26 +57,37 @@ class WidgetsTaskConsumer(BaseConsumer):
         top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
         all_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
 
-        ai = author_info(term, 'journal')
-        a_to_pmids = ai.author_to_pmids
         research_authors = []
-        if a_to_pmids:
-            top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
-            research_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
-
-        ai = author_info(term, 'expert')
-        a_to_pmids = ai.author_to_pmids
         review_authors = []
-        if a_to_pmids:
-            top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
-            review_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
-
-        ai = author_info(term, 'clinical')
-        a_to_pmids = ai.author_to_pmids
         clinical_authors = []
-        if a_to_pmids:
-            top_n_authors = sorted(a_to_pmids.keys(), key=lambda a: len(a_to_pmids[a]), reverse=True)[:75]
-            clinical_authors = adjacency_matrix(ai.pmid_to_authors, set(top_n_authors))
+
+        ai2 = select_publication_type(ai.pmid_to_authors, ai.pmid_to_pubtype, 'journal')
+        a2_to_pmids = ai2.author_to_pmids_selected
+        if a2_to_pmids:
+            if len(a2_to_pmids) == 1:
+                research_authors = adjacency_matrix_for_one(ai2.pmid_to_authors_selected)
+            else:
+                top_n_authors = sorted(a2_to_pmids.keys(), key=lambda a: len(a2_to_pmids[a]), reverse=True)[:75]
+                research_authors = adjacency_matrix(ai2.pmid_to_authors_selected, set(top_n_authors))
+
+        ai2 = select_publication_type(ai.pmid_to_authors, ai.pmid_to_pubtype, 'expert')
+        a2_to_pmids = ai2.author_to_pmids_selected
+        if a2_to_pmids:
+            if len(a2_to_pmids) == 1:
+                review_authors = adjacency_matrix_for_one(ai2.pmid_to_authors_selected)
+            else:
+                top_n_authors = sorted(a2_to_pmids.keys(), key=lambda a: len(a2_to_pmids[a]), reverse=True)[:75]
+                review_authors = adjacency_matrix(ai2.pmid_to_authors_selected, set(top_n_authors))
+
+        ai2 = select_publication_type(ai.pmid_to_authors, ai.pmid_to_pubtype, 'clinical')
+        a2_to_pmids = ai2.author_to_pmids_selected
+        if a2_to_pmids:
+            if len(a2_to_pmids) == 1:
+                clinical_authors = adjacency_matrix_for_one(ai2.pmid_to_authors_selected)
+            else:
+                top_n_authors = sorted(a2_to_pmids.keys(), key=lambda a: len(a2_to_pmids[a]), reverse=True)[:75]
+                clinical_authors = adjacency_matrix(ai2.pmid_to_authors_selected, set(top_n_authors))
+
         return [{'all': all_authors,
                  'research': research_authors,
                  'review': review_authors,
