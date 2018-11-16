@@ -100,16 +100,18 @@ def pubmed_search(term, skip=0, limit=MAX_PER_PAGE, sort='relevance'):
 '''
 def pubmed_search(term, pub_type = None, skip=0, limit=MAX_PER_PAGE, sort='relevance'):
     retmax = min(limit, MAX_PER_PAGE)
-    search_term = term
+
     if pub_type == 'research':
         search_term = term + '[ALL] AND (("Journal Article"[PTYP]) OR ("Multicenter Study"[PTYP]) OR ("Editorial"[PTYP]) OR ("Introductory Journal Article"[PTYP]) OR ("News"[PYPT]) OR ("Newspaper Article"[PYPT]) OR ("Review"[PYPT]) OR ("Validation Studies"[PYPT]))'
-    if pub_type == 'journal':
-        search_term = term + '[ALL] AND ("Journal Article"[PTYP]  NOT Review[PTYP])'
-    if pub_type == 'expert':
-        search_term = term + '[ALL] AND ("Review"[PTYP])'
-    if pub_type == 'clinical':
+    elif pub_type == 'journal':
+        search_term = term + '[ALL] AND ("Journal Article"[PTYP]  NOT "Review"[PTYP])'
+    elif pub_type == 'expert':
+        search_term = term + ' AND ("Review"[PTYP])'
+    elif pub_type == 'clinical':
         search_term = term + '[ALL] AND (("Adaptive Clinical Trial"[PTYP]) OR ("Case Reports"[PTYP]) OR ("Clinical Conference"[PTYP]) OR ("Clinical Study"[PTYP]) OR ("Clinical Trial, Phase I"[PTYP]) OR ("Clinical Trial, Phase II"[PTYP]) OR ("Clinical Trial, Phase III"[PTYP]) OR ("Clinical Trial, Phase IV"[PTYP]) OR ("Clinical Trial"[PTYP]) OR ("Comparative Study"[PTYP])  OR ("Controlled Clinical Trial"[PTYP])  OR ("Equivalence Trial"[PTYP]) OR ("Observational Study"[PTYP]) OR ("Pragmatic Clinical Trial"[PTYP]) OR ("Randomized Controlled Trial"[PTYP]) OR ("Twin Study"[PYPT]))'
-
+    else:
+        search_term = term + '[ALL]'
+        #search_term = term
     out = esearch(db='pubmed', sort=sort, term=search_term, retstart=skip, retmax=retmax)
     logger.info('Pubmed search query: %s ; translation-set: %s', term, out['TranslationSet'])
     return out
@@ -138,7 +140,8 @@ def get_pmids_for_term(term, pub_type, limit):
     return pmids[:limit]
 
 
-AuthorInfo = namedtuple('AuthorInfo', ['pmid_to_authors', 'author_to_pmids', 'pmid_to_articles'])
+AuthorInfo = namedtuple('AuthorInfo', ['pmid_to_authors', 'author_to_pmids', 'pmid_to_articles','pmid_to_pubtype'])
+AuthorInfo_PubType = namedtuple('AuthorInfo_PubType', ['pmid_to_authors_selected', 'author_to_pmids_selected'])
 Article = namedtuple('Article', ['title', 'abstract', 'date_of_publication'])
 KeywordInfo = namedtuple('KeywordInfo', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_articles'])
 KeywordInfo2 = namedtuple('KeywordInfo2', ['pmids_to_keywords', 'keyword_to_pmids','pmid_to_authors','keyword_to_jtitle','keyword_to_authors','author_to_jtitle'])
@@ -158,6 +161,7 @@ def affiliations(term, pub_type = None, limit=20_000) -> typing.Dict[str, str]:
 def author_info(term, pub_type = None, limit=20_000):
     pmids = get_pmids_for_term(term, pub_type, limit)
     pmid_to_authors = defaultdict(set)
+    pmid_to_pubtype = defaultdict(set)
     author_to_pmids = defaultdict(set)
     pmid_to_articles = {}
     medline_infos = get_medline_infos(pmids)
@@ -176,9 +180,38 @@ def author_info(term, pub_type = None, limit=20_000):
             pmid_to_authors[pmid].add(name)
             publication_year = extract_publication_year(m_info.get(DATE_OF_PUBLICATION))
             pmid_to_articles[pmid] = Article(m_info.get(TITLE), m_info.get(ABSTRACT), publication_year)
+            for each_type in m_info[PUBLICATION_TYPE]:
+                pmid_to_pubtype[pmid].add(each_type)
+    return AuthorInfo(pmid_to_authors, author_to_pmids, pmid_to_articles, pmid_to_pubtype)
 
-    return AuthorInfo(pmid_to_authors, author_to_pmids, pmid_to_articles)
+def select_publication_type(pmid_to_authors,  pmid_to_pubtype, pub_type):
+    pmid_list = []
+    authors_to_pmids_selected = defaultdict(set)
+    pmids_to_authors_selected = defaultdict(set)
+    for each_pmid, pub_type_list in pmid_to_pubtype.items():
+        research_list = ['Journal Article', 'Multicenter Study', 'Editorial', 'Introductory Journal Article','News', 'Newspaper Article','Review', 'Validation Studies']
+        review_list = ['Review']
+        journal_list = ['Journal Article']
+        clinical_list = ['Adaptive Clinical Trial', 'Case Reports', 'Clinical Conference', 'Clinical Study', 'Clinical Trial, Phase I', 'Clinical Trial, Phase II', 'Clinical Trial, Phase III', 'Clinical Trial, Phase IV', 'Clinical Trial', 'Comparative Study', 'Controlled Clinical Trial', 'Equivalence Trial', 'Observational Study', 'Pragmatic Clinical Trial', 'Randomized Controlled Trial', 'Twin Study"']
+        if pub_type == 'research':
+            if set(pub_type_list).intersection(set(research_list)):
+                pmid_list.append(each_pmid)
+        if pub_type == 'expert':
+            if set(pub_type_list).intersection(set(review_list)):
+                pmid_list.append(each_pmid)
+        if pub_type == 'clinical':
+            if set(pub_type_list).intersection(set(clinical_list)):
+                pmid_list.append(each_pmid)
+        if pub_type == 'journal':
+            if set(pub_type_list).intersection(set(journal_list)) and not set(pub_type_list).intersection(set(review_list)):
+                pmid_list.append(each_pmid)
 
+    for each_pmid in pmid_list:
+        pmids_to_authors_selected[each_pmid] = pmid_to_authors[each_pmid]
+        for each_author in pmid_to_authors[each_pmid]:
+            authors_to_pmids_selected[each_author].add(each_pmid)
+
+    return AuthorInfo_PubType(pmids_to_authors_selected, authors_to_pmids_selected)
 
 def keyword_info(term, limit=20_000):
     pmids = get_pmids_for_term(term, None, limit)
