@@ -158,7 +158,7 @@ def main():
         logging.basicConfig(level=logging.INFO)
 
     from app.placemats.util import kwargs_from_environ
-    ncbi.configure_client(**kwargs_from_environ({
+    configure_client(**kwargs_from_environ({
         'NCBI_EMAIL': 'email',
         'NCBI_API_KEY': 'api_key',
     }))
