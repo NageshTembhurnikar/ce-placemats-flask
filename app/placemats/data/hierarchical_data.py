@@ -49,10 +49,24 @@ def hierarchical_data(edge_to_nodes: dict):
 
     co_occurences = []
     for n in graph.nodes:
-        imports = {}
-        neighbors = [nb for nb in graph.neighbors(n)]
-        for each_neighbor in neighbors:
-            weight_value = graph.get_edge_data(n, each_neighbor)
-            imports[each_neighbor] = weight_value['weight']
+        imports = []
+        imports = [nb for nb in graph.neighbors(n)]
         co_occurences.append({'name': n, 'size': keywords.count(n), 'imports': imports})
-    return co_occurences
+
+        links = []
+        for n1, n2, weight in graph.edges(data='weight'):
+            links.append({
+                'node1': n1,
+                'node2': n2,
+                'value': weight,
+            })
+
+    return co_occurences, links
+
+        # imports = {}
+        # neighbors = [nb for nb in graph.neighbors(n)]
+        # for each_neighbor in neighbors:
+        #     weight_value = graph.get_edge_data(n, each_neighbor)
+        #     imports[each_neighbor] = weight_value['weight']
+        # co_occurences.append({'name': n, 'size': keywords.count(n), 'imports': imports})
+        # return co_occurences
